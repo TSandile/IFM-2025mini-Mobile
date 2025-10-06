@@ -9,6 +9,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { Ionicons } from "@expo/vector-icons";
 import ArtistScreen from "./src/pages/ArtistScreen";
+import ArtPieceScreen from "./src/pages/ArtPieceScreen";
 
 //b navigators
 const stackNavigator = createStackNavigator();
@@ -23,10 +24,10 @@ function HomeScreen({ navigation }) {
   );
 }
 
-function DetailsScreen() {
+function ExhibitionScreen() {
   return (
     <View style={styles.screens}>
-      <Text>Details Screen</Text>
+      <Text>Exhibition Screen</Text>
     </View>
   );
 }
@@ -60,8 +61,9 @@ function HomeStack() {
           ),
         })}
       />
-      <Stack.Screen name="Details" component={DetailsScreen} />
+      <Stack.Screen name="Exhibition" component={ExhibitionScreen} />
       <Stack.Screen name="Artist" component={ArtistScreen} />
+      <Stack.Screen name="ArtPiece" component={ArtPieceScreen} />
     </Stack.Navigator>
   );
 }
@@ -90,10 +92,10 @@ function AppDrawer() {
       />
 
       <Drawer.Screen
-        name="Details"
-        component={DetailsScreen}
+        name="Exhibitions"
+        component={ExhibitionScreen}
         options={{
-          drawerLabel: "Details",
+          drawerLabel: "Exhibitions",
           drawerIcon: ({ color, size }) => (
             <Ionicons name="list-outline" size={size} color={color} />
           ),
@@ -104,9 +106,20 @@ function AppDrawer() {
         name="Artists"
         component={ArtistScreen}
         options={{
-          drawerLabel: "Artists",
+          drawerLabel: "Featured Artists",
           drawerIcon: ({ color, size }) => (
             <Ionicons name="person-outline" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Drawer.Screen
+        name="Art Pieces"
+        component={ArtPieceScreen}
+        options={{
+          drawerLabel: "Art Pieces",
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="image-outline" size={size} color={color} />
           ),
         }}
       />
