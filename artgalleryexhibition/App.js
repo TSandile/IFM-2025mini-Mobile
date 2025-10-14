@@ -11,20 +11,21 @@ import { Ionicons } from "@expo/vector-icons";
 import ArtistScreen from "./src/pages/ArtistScreen";
 import ArtPieceScreen from "./src/pages/ArtPieceScreen";
 import ExhibitionScreen from "./src/pages/ExhibitionScreen";
+import HomeScreen from "./src/pages/HomeScreen";
 
 //b navigators
 const stackNavigator = createStackNavigator();
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
 
-function HomeScreen({ navigation }) {
-  return (
-    <View style={styles.screens}>
-      <Text>Home Screen </Text>
-      <Button title="Open Drawer" onPress={() => navigation.openDrawer()} />
-    </View>
-  );
-}
+// function HomeScreen({ navigation }) {
+//   return (
+//     <View style={styles.screens}>
+//       <Text>Home Screen </Text>
+//       <Button title="Open Drawer" onPress={() => navigation.openDrawer()} />
+//     </View>
+//   );
+// }
 
 // function ExhibitionScreen() {
 //   return (
