@@ -10,10 +10,12 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import { Ionicons } from "@expo/vector-icons";
 import ArtistScreen from "./src/pages/ArtistScreen";
 import ArtPieceScreen from "./src/pages/ArtPieceScreen";
+import ExhibitionScreen from "./src/pages/ExhibitionScreen";
 
 //b navigators
 const stackNavigator = createStackNavigator();
 const Drawer = createDrawerNavigator();
+const Stack = createNativeStackNavigator();
 
 function HomeScreen({ navigation }) {
   return (
@@ -24,15 +26,13 @@ function HomeScreen({ navigation }) {
   );
 }
 
-function ExhibitionScreen() {
-  return (
-    <View style={styles.screens}>
-      <Text>Exhibition Screen</Text>
-    </View>
-  );
-}
-
-const Stack = createNativeStackNavigator();
+// function ExhibitionScreen() {
+//   return (
+//     <View style={styles.screens}>
+//       <Text>Exhibition Screen</Text>
+//     </View>
+//   );
+// }
 
 // stack navigator for home main page
 function HomeStack() {
@@ -61,6 +61,7 @@ function HomeStack() {
           ),
         })}
       />
+
       <Stack.Screen name="Exhibition" component={ExhibitionScreen} />
       <Stack.Screen name="Artist" component={ArtistScreen} />
       <Stack.Screen name="ArtPiece" component={ArtPieceScreen} />
