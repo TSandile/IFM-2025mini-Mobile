@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   Linking,
 } from "react-native";
+import LogginStatus from "./LogginStatus";
 const theQueenImage = require("../images/images (15).jpg");
 const waveImage = require("../images/images (1).jpg");
 const skyImage = require("../images/download (3).jpg");
@@ -50,7 +51,7 @@ const FeaturedCard = ({ artwork }) => (
   </View>
 );
 
-// --- Home Component (React Native) ---
+//  Home Component
 const Home = () => {
   const navigation = useNavigation();
 
@@ -60,6 +61,11 @@ const Home = () => {
 
   return (
     <ScrollView style={styles.galleryHome}>
+      <View style={styles.authHeader}>
+        <LogginStatus navigation={navigation} />
+      </View>
+      <View style={styles.separator} />
+
       <View style={styles.heroSection}>
         <Text style={styles.heroTitle}>
           Welcome To The Joburg Art Gallery Exhibition
@@ -90,15 +96,22 @@ const Home = () => {
   );
 };
 
-// --- Stylesheet for React Native ---
+// Stylesheet
 const styles = StyleSheet.create({
   galleryHome: {
     flex: 1,
-    backgroundColor: "#fff", // A default background color
+    backgroundColor: "#fff",
     padding: 10,
   },
+  authHeader: {
+    paddingHorizontal: 10,
+    paddingTop: 40,
+    paddingBottom: 10,
+    width: "100%",
+    backgroundColor: "#fff",
+    alignItems: "flex-end",
+  },
 
-  // Hero Section
   heroSection: {
     paddingVertical: 30,
     alignItems: "center",
@@ -129,7 +142,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // Featured Section
   featuredSection: {
     marginVertical: 20,
   },
@@ -141,26 +153,26 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   featuredList: {
-    // Use flexWrap for a grid-like layout (cards will wrap to the next line)
+    // Use flexWrap for a grid
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-around", // Space between cards
+    justifyContent: "space-around", // Spacing between cards
   },
 
   // Featured Card
   featuredCard: {
-    width: "45%", // Takes up nearly half the screen width
+    width: "45%",
     marginBottom: 20,
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 8,
-    overflow: "hidden", // Ensures border radius works well
+    overflow: "hidden",
     backgroundColor: "#f9f9f9",
   },
   cardImage: {
-    width: "100%", // Fills the width of the card
-    height: 150, // Fixed height for the image
-    resizeMode: "cover", // Ensures the image covers the area without distortion
+    width: "100%",
+    height: 150,
+    resizeMode: "cover",
   },
   cardInfo: {
     padding: 10,

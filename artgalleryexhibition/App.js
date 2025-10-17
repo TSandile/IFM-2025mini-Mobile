@@ -12,28 +12,15 @@ import ArtistScreen from "./src/pages/ArtistScreen";
 import ArtPieceScreen from "./src/pages/ArtPieceScreen";
 import ExhibitionScreen from "./src/pages/ExhibitionScreen";
 import HomeScreen from "./src/pages/HomeScreen";
+import { UserProvider } from "./src/pages/UserContext";
+import Login from "./src/pages/Login";
+import Register from "./src/pages/Register";
+import RegisterExhibition from "./src/pages/RegisterExhibition";
 
 //b navigators
 const stackNavigator = createStackNavigator();
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
-
-// function HomeScreen({ navigation }) {
-//   return (
-//     <View style={styles.screens}>
-//       <Text>Home Screen </Text>
-//       <Button title="Open Drawer" onPress={() => navigation.openDrawer()} />
-//     </View>
-//   );
-// }
-
-// function ExhibitionScreen() {
-//   return (
-//     <View style={styles.screens}>
-//       <Text>Exhibition Screen</Text>
-//     </View>
-//   );
-// }
 
 // stack navigator for home main page
 function HomeStack() {
@@ -63,7 +50,14 @@ function HomeStack() {
         })}
       />
 
+      {/* Authentication pages */}
+      <Stack.Screen name="login" component={Login} />
+      <Stack.Screen name="register" component={Register} />
+
+      {/* Exhibition handle */}
       <Stack.Screen name="Exhibition" component={ExhibitionScreen} />
+      <Stack.Screen name="registerE" component={RegisterExhibition} />
+      <Stack.Screen name="registerExhibition" component={RegisterExhibition} />
       <Stack.Screen name="Artist" component={ArtistScreen} />
       <Stack.Screen name="ArtPiece" component={ArtPieceScreen} />
     </Stack.Navigator>
@@ -131,9 +125,11 @@ function AppDrawer() {
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <AppDrawer />
-    </NavigationContainer>
+    <UserProvider>
+      <NavigationContainer>
+        <AppDrawer />
+      </NavigationContainer>
+    </UserProvider>
   );
 }
 

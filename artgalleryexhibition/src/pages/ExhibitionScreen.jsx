@@ -2,68 +2,86 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
-  FlatList,
-  ActivityIndicator,
   Image,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  Dimensions,
+  TouchableOpacity,
+  Alert,
 } from "react-native";
-import { Card, Title, Paragraph } from "react-native-paper";
 
+import { useUser } from "./UserContext";
+import { useNavigation } from "@react-navigation/native";
+
+// Api end point
 const API_URL = "http://192.168.0.235:2025/api/v1/exhibition/getAllExhibitions";
 
-//helper function for date
-const formatDate = (dateString) => {
-  if (!dateString) return "N/A";
-  try {
-    const options = { year: "numeric", month: "short", day: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  } catch (e) {
-    return dateString;
-  }
-};
+// Calculate card width for a 2-column grid with padding
+const screenWidth = Dimensions.get("window").width;
+const cardWidth = (screenWidth - 30) / 2;
 
-// --- ExhibitionCard Component ---
-const ExhibitionCard = ({ exhibition }) => {
-  // Construct the full image URL
-  const imageUrl = `http://192.168.0.235:2025/image/getImageById/${exhibition.imageData?.id}`;
-
-  // Image source requires a { uri: ... } structure in React Native
-  const imageSource = { uri: imageUrl };
-
+const Logged = ({ exhibition, handleSubmit }) => {
   return (
-    <Card style={styles.card}>
-      {/* Display the Image only if imageData exists */}
-      {exhibition.imageData?.name && (
-        <Card.Cover source={imageSource} style={styles.cardCover} />
-      )}
+    <View style={styles.buttonContainer}>
+      <TouchableOpacity
+        style={styles.registerButton}
+        onPress={() => handleSubmit(exhibition.id)}
+        // navigation.navigate("registerExhibition", { id: exhibition.id })
 
-      <Card.Content style={styles.cardContent}>
-        <Title style={styles.title}>{exhibition.title}</Title>
-
-        <Paragraph>
-          <Text style={styles.label}>Status: </Text>
-          <Text style={styles.value}>{exhibition.status}</Text>
-        </Paragraph>
-
-        <Paragraph>
-          <Text style={styles.label}>Start Date: </Text>
-          <Text style={styles.value}>{formatDate(exhibition.start_date)}</Text>
-        </Paragraph>
-
-        <Paragraph>
-          <Text style={styles.label}>End Date: </Text>
-          <Text style={styles.value}>{formatDate(exhibition.end_date)}</Text>
-        </Paragraph>
-      </Card.Content>
-    </Card>
+        // onPress={() => handleSubmit(exhibition.id)}
+      >
+        <Text style={styles.buttonText}>Register</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
-// --- Main ExhibitionList Component ---
+//  Exhibition Card Component
+const ExhibitionCard = ({ exhibition, user, handleSubmit }) => {
+  const imageUrl = `http://192.168.0.235:2025/image/getImageById/${exhibition.imageData?.id}`;
+
+  return (
+    <View style={styles.card}>
+      {exhibition.imageData?.name && (
+        <Image
+          source={{ uri: imageUrl }}
+          style={styles.cardImage}
+          accessibilityLabel={exhibition.title}
+          resizeMode="cover"
+        />
+      )}
+
+      <View style={styles.cardContent}>
+        <Text style={styles.cardTitle} numberOfLines={2}>
+          {exhibition.title}
+        </Text>
+        <Text style={styles.cardDetail}>Status: {exhibition.status}</Text>
+        <Text style={styles.cardDetail}>
+          Start Date: {exhibition.start_date}
+        </Text>
+        <Text style={styles.cardDetail}>End Date: {exhibition.end_date}</Text>
+
+        {user != null && user.type === "" && (
+          <Logged exhibition={exhibition} handleSubmit={handleSubmit} />
+        )}
+      </View>
+    </View>
+  );
+};
+
+//  Main Exhibition List Component
 const ExhibitionList = () => {
+  const navigation = useNavigation();
   const [exhibitions, setExhibitions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { user } = useUser(); // Using user context
+
+  const handleSubmit = (id) => {
+    // Navigate to the screen                                         -- giving error
+    navigation.navigate("registerE", { id: id });
+  };
 
   useEffect(() => {
     const fetchExhibitions = async () => {
@@ -71,14 +89,15 @@ const ExhibitionList = () => {
         const response = await fetch(API_URL);
 
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
+        console.log("Exhibitions fetched successfully.");
         setExhibitions(data);
+        setError(null);
       } catch (err) {
-        // NOTE: For React Native testing, ensure 'localhost' is replaced with
-        // your machine's IP address if testing on a physical device or external emulator.
+        Alert.alert("Error", `Failed to fetch exhibitions: ${err.message}`);
         setError(err.message);
         setExhibitions([]);
       } finally {
@@ -89,21 +108,20 @@ const ExhibitionList = () => {
     fetchExhibitions();
   }, []);
 
-  // --- Conditional Rendering ---
+  //  Conditional Rendering
 
   if (loading) {
-    // ActivityIndicator is the standard loading spinner in RN
     return (
-      <View style={[styles.container, styles.center]}>
+      <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
-        <Text style={styles.statusText}>Loading exhibitions...</Text>
+        <Text style={{ marginTop: 10 }}>Loading exhibitions...</Text>
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={[styles.container, styles.center]}>
+      <View style={styles.centerContainer}>
         <Text style={styles.errorText}>Error fetching data: {error}</Text>
       </View>
     );
@@ -111,91 +129,122 @@ const ExhibitionList = () => {
 
   if (exhibitions.length === 0) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <Text style={styles.statusText}>No exhibitions found.</Text>
+      <View style={styles.centerContainer}>
+        <Text style={styles.noDataText}>No exhibitions found.</Text>
       </View>
     );
   }
 
-  // --- Main List Rendering using FlatList ---
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Exhibition Collection</Text>
+    <View style={styles.mainContainer}>
+      <Text style={styles.headerTitle}>Exhibition Collection</Text>
 
-      {/* FlatList is essential for long, performant lists in RN. 
-          It handles rendering only visible items. */}
       <FlatList
         data={exhibitions}
+        renderItem={({ item }) => (
+          <ExhibitionCard
+            exhibition={item}
+            user={user}
+            handleSubmit={handleSubmit}
+          />
+        )}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <ExhibitionCard exhibition={item} />}
-        // Setting numColumns to 2 simulates the Grid-like layout (xs=12, sm=6)
         numColumns={2}
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.listContent}
+        initialNumToRender={8}
       />
     </View>
   );
 };
 
-// --- StyleSheet for component styling ---
+//  React Native Styling
 const styles = StyleSheet.create({
-  container: {
-    flex: 1, // Takes up the entire screen space
+  mainContainer: {
+    flex: 1,
+    paddingHorizontal: 5,
     backgroundColor: "#f5f5f5",
   },
-  center: {
+  centerContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#fff",
   },
-  header: {
+  headerTitle: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
     marginVertical: 20,
-    paddingHorizontal: 10,
-  },
-  statusText: {
-    fontSize: 16,
-    marginTop: 10,
+    color: "#333",
   },
   errorText: {
-    fontSize: 16,
     color: "red",
-    textAlign: "center",
+    fontSize: 16,
+    padding: 20,
   },
-  listContent: {
-    paddingHorizontal: 8,
-    paddingBottom: 20,
+  noDataText: {
+    fontSize: 18,
+    color: "#666",
   },
+
   row: {
-    // Distributes space evenly when using numColumns={2}
     flex: 1,
     justifyContent: "space-around",
-    marginBottom: 10,
+    marginHorizontal: 5,
   },
+
   card: {
-    // Allows two cards per row with some margin
-    width: "48%",
-    marginHorizontal: "1%",
-    elevation: 4, // Android shadow
+    width: cardWidth,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    marginVertical: 10,
+    overflow: "hidden",
   },
-  cardCover: {
+  cardImage: {
     height: 150,
-    resizeMode: "cover",
+    width: "100%",
   },
   cardContent: {
-    paddingVertical: 10,
+    padding: 10,
+    minHeight: 120,
   },
-  title: {
-    fontSize: 18,
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
     marginBottom: 5,
+    color: "#333",
   },
-  label: {
+  cardDetail: {
+    fontSize: 12,
+    color: "#757575",
+    marginBottom: 2,
+  },
+
+  buttonContainer: {
+    marginTop: 10,
+    alignItems: "center",
+  },
+  registerButton: {
+    backgroundColor: "black",
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    width: "100%",
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 14,
     fontWeight: "bold",
   },
-  value: {
-    fontSize: 14,
-    color: "#666",
+  listContent: {
+    paddingBottom: 20,
   },
 });
 
